@@ -27,7 +27,7 @@ public class FilterTaskAuth extends OncePerRequestFilter {
         var servletPath = request.getServletPath(); // /tasks
 
         // Verificar se a requisição é para o endpoint de login
-        if (servletPath.equals("/tasks/create")) {
+        if (servletPath.startsWith("/tasks/")) {
 
             var authorization = request.getHeader("Authorization"); // Basic YXBhcmljaW86YXBhcmljb2Rlcg==
             var authEncoded = authorization.substring("Basic".length()).trim();
@@ -52,6 +52,7 @@ public class FilterTaskAuth extends OncePerRequestFilter {
                     response.sendError(401);
                     return;
                 } else {
+                    request.setAttribute("idUser", user.getId()); // esse atributo será usado no controller
                     filterChain.doFilter(request, response);
                 }
             }
