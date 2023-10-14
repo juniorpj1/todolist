@@ -28,4 +28,12 @@ public class TaskModel {
     private LocalDateTime startAt;
     private UUID idUser;
 
+    // throws Exception: caso ocorra algum erro, o método irá lançar uma exceção para quem o chamar
+    public void setTitle(String title) throws Exception {
+        if (title.length() > 50) {
+            throw new Exception("O título não pode ter mais que 50 caracteres");
+        }
+        this.title = title;
+    }
+
 }

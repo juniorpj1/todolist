@@ -55,12 +55,26 @@ public class TaskController {
     }
 
     @PutMapping("/update/{id}") // http://localhost:8080/tasks/update/idTask
-    public TaskModel updateTask(@RequestBody TaskModel taskModel, @PathVariable UUID id, HttpServletRequest request) {
+    public ResponseEntity updateTask(@RequestBody TaskModel taskModel, @PathVariable UUID id,
+            HttpServletRequest request) {
 
         var task = this.taskRepository.findById(id).orElse(null); // buscar a task pelo id
-        Utils.copyNonNullProperties(taskModel, task); // copiar as propriedades não nulas da taskModel para a task
 
-        return this.taskRepository.save(task); // salvar a task no banco de dados
+        if (task == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Task não encontrada");
+        }
+
+        var idUser = request.getAttribute("idUser"); // recuperar o id do usuário vindo do filtro
+
+        if (!task.getIdUser().equals(idUser)) { // verificar se o id do usuário é o mesmo da task
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Você não tem permissão para alterar essa task");
+        }
+
+        Utils.copyNonNullProperties(taskModel, task); // copiar as propriedades não nulas da taskModel para a task
+        var taskUpdated = this.taskRepository.save(task);
+        return ResponseEntity.status(HttpStatus.OK).body(taskUpdated); // atualizar a task no banco de dados
+
     }
 
 }
